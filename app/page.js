@@ -108,8 +108,9 @@ export default function HomePage() {
                 transition={{ duration: 0.55, delay: 0.12 }}
                 className="mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base"
               >
-                AlphaPulse Pro fuses Birdeye market data, token safety heuristics, and a fast rule-based prediction
-                engine into a premium terminal for early listings, live trends, and actionable alpha picks.
+                AlphaPulse Pro fuses free live DEX Screener market data, Honeypot.is risk checks, and a fast
+                rule-based prediction engine into a premium terminal for early listings, live trends, and actionable
+                alpha picks.
               </motion.p>
             </div>
 
@@ -121,7 +122,7 @@ export default function HomePage() {
             >
               <MetricCard label="High Alpha" value={dashboard.summary.alphaCount} helper="Signals cleared score + AI filters" />
               <MetricCard label="Avg Safety" value={`${dashboard.summary.avgScore}%`} helper="Across displayed opportunities" />
-              <MetricCard label="New Listings" value={dashboard.summary.newListings} helper="Freshly surfaced by Birdeye" />
+              <MetricCard label="New Listings" value={dashboard.summary.newListings} helper="Freshly surfaced by free DEX feeds" />
               <MetricCard label="Trending Radar" value={dashboard.summary.trendingCount} helper="Momentum names on watch" />
             </motion.div>
           </div>
@@ -146,7 +147,7 @@ export default function HomePage() {
             ) : dashboard.highAlphaPicks.length ? (
               <div className="grid gap-5 lg:grid-cols-3">
                 {dashboard.highAlphaPicks.map((token, index) => (
-                  <TokenCard key={token.address} token={token} index={index} variant="alpha" />
+                  <TokenCard key={`${token.chainId}:${token.address}`} token={token} index={index} variant="alpha" />
                 ))}
               </div>
             ) : (
@@ -164,7 +165,7 @@ export default function HomePage() {
             ) : (
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {dashboard.newListings.map((token, index) => (
-                  <TokenCard key={token.address} token={token} index={index} />
+                  <TokenCard key={`${token.chainId}:${token.address}`} token={token} index={index} />
                 ))}
               </div>
             )}
@@ -180,7 +181,7 @@ export default function HomePage() {
             ) : (
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {dashboard.trendingTokens.map((token, index) => (
-                  <TokenCard key={token.address} token={token} index={index} />
+                  <TokenCard key={`${token.chainId}:${token.address}`} token={token} index={index} />
                 ))}
               </div>
             )}

@@ -26,12 +26,12 @@ function pruneCache() {
 }
 
 function markAlerted(token) {
-  const cacheKey = `${token.address}:${token.prediction?.label}`;
+  const cacheKey = `${token.chainId}:${token.address}:${token.prediction?.label}`;
   cacheStore.set(cacheKey, Date.now() + 6 * 60 * 60 * 1000);
 }
 
 function wasRecentlyAlerted(token) {
-  const cacheKey = `${token.address}:${token.prediction?.label}`;
+  const cacheKey = `${token.chainId}:${token.address}:${token.prediction?.label}`;
   return cacheStore.has(cacheKey);
 }
 

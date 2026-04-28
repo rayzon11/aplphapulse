@@ -1,10 +1,10 @@
 # AlphaPulse Pro
 
-AlphaPulse Pro is a production-ready, AI-powered crypto alpha intelligence platform built with Next.js 14, Tailwind CSS, Framer Motion, Birdeye market data, and a Telegram bot worker. It helps surface early token listings, track real-time trending tokens, score contract safety, estimate short-term conviction, and push high-alpha alerts into Telegram.
+AlphaPulse Pro is a production-ready, AI-powered crypto alpha intelligence platform built with Next.js 14, Tailwind CSS, Framer Motion, free DEX Screener market data, Honeypot.is security checks, and a Telegram bot worker. It surfaces early token listings, tracks live momentum, scores contract safety, estimates short-term conviction, and pushes high-alpha alerts into Telegram without requiring a paid market-data key.
 
 ## Features
 
-- Real-time Birdeye-powered dashboard for new listings and trending tokens
+- Real-time no-key dashboard powered by DEX Screener and Honeypot.is
 - Safety score engine with liquidity, holders, and honeypot heuristics
 - Rule-based AI prediction labels: `STRONG BUY`, `WATCH`, `AVOID`
 - High Alpha Picks section filtered by score and conviction
@@ -29,7 +29,7 @@ AlphaPulse Pro is a production-ready, AI-powered crypto alpha intelligence platf
 
 /lib
   ai.js
-  birdeye.js
+  marketData.js
   scoring.js
 
 /pages/api
@@ -48,7 +48,6 @@ README.md
 Copy [`.env.example`](C:/Users/admin/Documents/Codex/2026-04-28/you-are-an-expert-full-stack/.env.example) to `.env.local`, then fill in:
 
 ```env
-BIRDEYE_API_KEY=your_birdeye_api_key
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 TELEGRAM_CHAT_ID=your_telegram_chat_id
 CRON_SECRET=your_optional_vercel_cron_secret
@@ -86,9 +85,10 @@ npm run bot
 
 ### 1. New Token Radar
 
-AlphaPulse Pro pulls fresh listings from Birdeye:
+AlphaPulse Pro pulls fresh token-discovery candidates from DEX Screener:
 
-- `GET /defi/v2/tokens/new_listing`
+- `GET /token-profiles/latest/v1`
+- `GET /tokens/v1/{chainId}/{tokenAddresses}`
 
 The app enriches listings with live market metrics and shows:
 
@@ -100,9 +100,10 @@ The app enriches listings with live market metrics and shows:
 
 ### 2. Trending Tokens
 
-Trending discovery comes from:
+Trending discovery comes from the DEX Screener boosted-token feed, then gets enriched with live pair data:
 
-- `GET /defi/token_trending`
+- `GET /token-boosts/top/v1`
+- `GET /tokens/v1/{chainId}/{tokenAddresses}`
 
 The dashboard displays:
 
@@ -118,6 +119,10 @@ The safety engine starts every token at `50` and applies:
 - `+20` if liquidity is greater than `$100,000`
 - `+15` if holders are greater than `1,000`
 - `+15` if the token is not flagged as a honeypot
+
+Honeypot and holder data comes from:
+
+- `GET /v2/IsHoneypot` on Honeypot.is
 
 The final score is capped at `100`.
 
@@ -181,30 +186,30 @@ The bot also runs an internal scheduled sweep every 3 minutes while the process 
 1. Push the project to GitHub.
 2. Import the repository into Vercel.
 3. Add these environment variables in the Vercel dashboard:
-   - `BIRDEYE_API_KEY`
    - `TELEGRAM_BOT_TOKEN`
    - `TELEGRAM_CHAT_ID`
    - `CRON_SECRET`
 4. Deploy.
 
-The included [`vercel.json`](C:/Users/admin/Documents/Codex/2026-04-28/you-are-an-expert-full-stack/vercel.json) schedules `/api/alerts` every 15 minutes.
+The included [`vercel.json`](C:/Users/admin/Documents/Codex/2026-04-28/you-are-an-expert-full-stack/vercel.json) schedules `/api/alerts` once daily so it works on Vercel Hobby.
 
 Important:
 
 - Vercel cron schedules use UTC.
 - Vercel Hobby plans only support once-daily cron jobs. For 15-minute scans, use Vercel Pro or run the Telegram bot as a persistent worker on Railway, Render, Fly.io, or a VPS.
 
-## Birdeye and Vercel References
+## Data Sources and References
 
-- Birdeye new listings: [docs.birdeye.so/reference/get-defi-v2-tokens-new_listing](https://docs.birdeye.so/reference/get-defi-v2-tokens-new_listing)
-- Birdeye trending: [docs.birdeye.so/docs/trending-tokens](https://docs.birdeye.so/docs/trending-tokens)
-- Birdeye token security: [docs.birdeye.so/reference/get-defi-token_security](https://docs.birdeye.so/reference/get-defi-token_security)
+- DEX Screener API reference: [docs.dexscreener.com/api/reference](https://docs.dexscreener.com/api/reference)
+- GeckoTerminal-style public DEX API comparison context: [apiguide.geckoterminal.com](https://apiguide.geckoterminal.com/)
+- Honeypot.is API reference: [docs.honeypot.is](https://docs.honeypot.is/)
 - Vercel cron jobs: [vercel.com/docs/cron-jobs](https://vercel.com/docs/cron-jobs)
 - Vercel cron auth with `CRON_SECRET`: [vercel.com/docs/cron-jobs/manage-cron-jobs](https://vercel.com/docs/cron-jobs/manage-cron-jobs)
 
 ## Notes
 
-- The API layer uses defensive normalization because Birdeye response shapes can vary by endpoint and chain.
+- The market data layer currently filters to Ethereum, BNB Chain, and Base because Honeypot.is officially supports those chains for its public risk checks.
+- The API layer uses defensive normalization because public DEX feeds can vary by endpoint and pair metadata.
 - Alert deduplication is in-memory for this starter build. For distributed multi-instance production environments, back it with Redis or another shared store.
 - The frontend auto-refreshes every 60 seconds.
 

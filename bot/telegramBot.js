@@ -44,6 +44,7 @@ export function formatHighAlphaMessage(token) {
   return [
     "🚀 <b>HIGH ALPHA ALERT</b>",
     `Token: <b>${escapeHtml(token.symbol || token.name || "UNKNOWN")}</b>`,
+    `Chain: <b>${escapeHtml(token.chainLabel || token.chainId || "Unknown")}</b>`,
     `Score: <b>${token.score}</b>`,
     `Prediction: <b>${escapeHtml(token?.prediction?.label || "WATCH")}</b>`,
     `Confidence: <b>${token?.prediction?.confidence || 0}%</b>`,
@@ -83,7 +84,7 @@ export async function sendHighAlphaAlert(token, options = {}) {
 }
 
 function cacheKey(token) {
-  return `${token.address}:${token.prediction?.label}`;
+  return `${token.chainId}:${token.address}:${token.prediction?.label}`;
 }
 
 function markSeen(token) {
@@ -142,7 +143,7 @@ export function startTelegramBot() {
       [
         "AlphaPulse Pro status",
         `Chat ID: ${process.env.TELEGRAM_CHAT_ID || "not configured"}`,
-        `Birdeye key: ${process.env.BIRDEYE_API_KEY ? "loaded" : "missing"}`,
+        "Market feed: DEX Screener + Honeypot.is",
         `Polling: active`
       ].join("\n")
     );

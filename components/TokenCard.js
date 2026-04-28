@@ -97,6 +97,7 @@ export default function TokenCard({ token, index = 0, variant = "default" }) {
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2">
+          {token.chainLabel ? <span className="pill text-slate-200">{token.chainLabel}</span> : null}
           {sourceText ? <span className="pill text-slate-200">{sourceText}</span> : null}
           {token.rank ? <span className="pill text-slate-200">Rank #{token.rank}</span> : null}
           <span className="pill text-slate-200">{formatShortDate(token.listedAt)}</span>
